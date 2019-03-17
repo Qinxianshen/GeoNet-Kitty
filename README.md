@@ -143,3 +143,62 @@ GEOnet代码没有提供展示一张视差图结果图的方法 参考monodepth�
 
 
 
+
+
+### 2.加入PoseTask
+
+
+PoseNet与GeoNet并行训练
+
+如果没有PoseNet数据 则只有Geonet单独训练
+
+如果没有GeoNet数据 则只有PoseNet单独训练
+
+因此将处理好的PoseNet数据和GeoNet数据要放在一起，一同训练
+
+
+(1)数据预处理
+
+> python data/prepare_train_data.py --dataset_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/kitty/ --dataset_name=kitti_odom --dump_root=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/kitty_formate/ --seq_length=5 --img_height=128 --img_width=416 --num_threads=1 --remove_static
+
+我的sequences的数据集在kitty文件夹下 
+
+dataset_dir 里不要有sequences
+
+(2)训练
+
+> python geonet_main.py --mode=train_rigid --dataset_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/kitty_formate/ --checkpoint_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/save_ckpts/ --learning_rate=0.0002 --seq_length=3 --batch_size=4 --max_steps=11 --max_to_keep=2 --save_ckpt_freq=5
+
+(3)测试PoseNet
+
+1.生成Predict的snippets
+> python geonet_main.py --mode=test_pose --dataset_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/kitty/ --init_ckpt_file=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/save_ckpts/model-10 --batch_size=1 --seq_length=3 --pose_test_seq=4 --output_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/output_prediect/
+
+--pose_test_seq  是选择测试的数据集
+
+
+seq_length为什么为5就失败了？
+
+2.用data_odometry_poses.zip 数据集生成Snippets generate the groundtruth pose snippets
+
+> python kitti_eval/generate_pose_snippets.py --dataset_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/kitty/ --output_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/OutputSnippets/ --seq_id=04 --seq_length=3
+
+测试集合还需要data_odometry_poses.zip 数据集 也就是ground truth数据集
+不然会出现IOError: [Errno 2] No such file or directory: '/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/kitty/poses/04.txt' 错误
+
+3.将预测的 snippets  与   数据集生成Snippets generate the groundtruth pose snippets对比
+
+> python kitti_eval/eval_pose.py --gtruth_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/OutputSnippets/ --pred_dir=/home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/output_prediect/
+
+结果得到均值与方差
+
+Predictions dir: /home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/output_prediect/
+ATE mean: 0.9986, std: 0.0985
+
+
+
+#### 10次
+![10](./pic/test_disp_addPoseNet.png)
+
+
+
