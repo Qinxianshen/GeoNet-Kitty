@@ -192,13 +192,30 @@ seq_length为什么为5就失败了？
 
 结果得到均值与方差
 
+#### 10次
+
 Predictions dir: /home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/output_prediect/
 ATE mean: 0.9986, std: 0.0985
 
 
-
-#### 10次
 ![10](./pic/test_disp_addPoseNet.png)
+
+
+#### 6000次
+
+Predictions dir: /home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/output_prediect/
+ATE mean: 0.0128, std: 0.0045
+
+![6000](./pic/test_disp_addPose6000.png)
+
+#### 8000次
+
+Predictions dir: /home/hu/Common/GeoNet-Kitty/GeoNet/data/Data/output_prediect/
+ATE mean: 0.0135, std: 0.0050
+
+![8000](./pic/test_dispaddPose8000.png)
+
+
 
 
 
